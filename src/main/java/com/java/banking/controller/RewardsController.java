@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.java.banking.exceptions.CustomerNotFoundException;
 import com.java.banking.model.Customer;
 import com.java.banking.model.Rewards;
 import com.java.banking.service.RewardsService;
@@ -19,11 +20,6 @@ import com.java.banking.service.RewardsService;
 @RequestMapping("/rewardsprogram")
 public class RewardsController {
 
-	@GetMapping("/customerid/{id}")
-	public String getRewards(@PathVariable("id") int id) {
-		return "Hello Reward program for Customer id"+id;
-	}
-	
  	@Autowired
     RewardsService rewardsService;
 
@@ -32,7 +28,7 @@ public class RewardsController {
     	Optional<Customer> customerOptional = rewardsService.findByCustomerId(customerId);
         if(!customerOptional.isPresent())
         {
-        	throw new RuntimeException("Invalid / Missing customer Id ");
+        	throw new CustomerNotFoundException();
         }
         Rewards customerRewards = rewardsService.getRewardsByCustomerIdPerMonth(customerId);
         return new ResponseEntity<>(customerRewards,HttpStatus.OK);
