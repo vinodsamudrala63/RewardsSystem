@@ -19,3 +19,5 @@ H2 Configuration is provided in application.properties file.
 
 
 Application URL :  http://localhost:8181/rewardsprogram/customerid/1001
+
+![image](https://user-images.githubusercontent.com/125673834/219702599-e1225c00-2918-4221-89aa-53ca8c33da30.png)
