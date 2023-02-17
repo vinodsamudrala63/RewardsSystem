@@ -9,20 +9,13 @@ import com.java.banking.model.Rewards;
 import com.java.banking.model.Transaction;
 import com.java.banking.repository.RewardsRepository;
 import com.java.banking.repository.TransactionRepository;
+import com.java.banking.util.RewardsDateUtil;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import static java.time.temporal.TemporalAdjusters.*;
 
 @Service
 public class RewardsService {
@@ -58,9 +51,9 @@ public class RewardsService {
 
 	private Map<String, Long> getTotalRewardsPerMonth(Long customerId) {
 		List<Transaction> transactions = transactionRepository.findAllByCustomerIdAndTransactionDatewithin(customerId,
-				getFirstDateOfMonth(PREVIOUSMONTHS-1), getLastDateOfMonths(0));
+				RewardsDateUtil.getFirstDateOfMonth(PREVIOUSMONTHS-1), RewardsDateUtil.getLastDateOfMonths(0));
 		return transactions.stream()
-				.collect(Collectors.groupingBy(tran -> getMonthYearFromTimeStamp(tran.getTransactionDate()),
+				.collect(Collectors.groupingBy(tran -> RewardsDateUtil.getMonthYearFromTimeStamp(tran.getTransactionDate()),
 						Collectors.summingLong(transaction -> calculateRewards(transaction))));
 
 	}
@@ -72,36 +65,11 @@ public class RewardsService {
 			return Math.round(t.getTransactionAmount() - SECONDREWARDLIMIT) * 2
 					+ (SECONDREWARDLIMIT - FIRSTREWARDLIMIT);
 		} else
-			return 0l;
+			return 0l;// 0L long type casting
 
 	}
 
-	public String getMonthYearFromTimeStamp(Timestamp timestamp) {
-		Calendar mCalendar = Calendar.getInstance();
-		mCalendar.setTime((Date) timestamp.clone());
-		return mCalendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) + "-"
-				+ mCalendar.get(Calendar.YEAR);
-	}
-
-	public String getMonthNameAndYear(int previousMonth) {
-		Calendar mCalendar = Calendar.getInstance();
-		mCalendar.add(Calendar.MONTH, -previousMonth);
-		return mCalendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) + "-"
-				+ mCalendar.get(Calendar.YEAR);
-	}
-
-	public Timestamp getFirstDateOfMonth(int previousMonth) {
-		LocalDate localDate = LocalDate.now();
-		LocalDateTime startOfDay = LocalDateTime.of(localDate, LocalTime.MIDNIGHT);
-		return Timestamp.valueOf(startOfDay.minusMonths(previousMonth).with(firstDayOfMonth()));
-	}
-
-	public Timestamp getLastDateOfMonths(int previousMonth) {
-		LocalDate localDate = LocalDate.now();
-		LocalDateTime endOfDay = LocalDateTime.of(localDate, LocalTime.MAX);
-		return Timestamp.valueOf(endOfDay.minusMonths(previousMonth).with(lastDayOfMonth()));
-	}
-
+	
 	public Optional<Customer> findByCustomerId(Long customerId) {
 		return rewardsRepository.findByCustomerId(customerId);
 	}
