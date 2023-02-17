@@ -23,7 +23,7 @@ public class RewardsController {
  	@Autowired
     RewardsService rewardsService;
 
-    @GetMapping(value = "customerid/{customerId}/rewards",produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "customerid/{customerId}",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Rewards> getRewardsByCustomerId(@PathVariable("customerId") Long customerId){
     	Optional<Customer> customerOptional = rewardsService.findByCustomerId(customerId);
         if(!customerOptional.isPresent())
